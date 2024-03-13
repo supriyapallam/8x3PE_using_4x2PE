@@ -1,0 +1,73 @@
+//Design Code
+module pe4x2(output reg [1:0]out,output reg valid, input en,input [3:0]in);
+  always@*
+    begin
+      if(en==1'b1)
+        begin
+          if(in[3]==1'b1)
+            begin
+              out=2'b11;
+              valid=1'b1;
+            end
+          else if(in[2]==1'b1)
+            begin
+              out=2'b10;
+              valid=1'b1;
+            end
+          else if(in[1]==1'b1)
+            begin
+              out=2'b01;
+              valid=1'b1;
+            end
+          else if(in[0]==1'b1)
+            begin
+              out=2'b00;
+              valid=1'b1;
+            end
+          else
+            begin
+              out=1'b0;
+              valid=1'b0;
+            end
+        end
+          else
+            begin
+              out=1'b0;
+              valid=1'b0;
+            end
+        end
+endmodule
+module pe8x3_stru(output [2:0]out,output valid,input [7:0]in,input en);
+  wire o1[1:0];
+  wire o0[1:0];
+  wire valid1,valid0;
+  pe4x2 pe1(o1[1:0],valid1,en,in[3:0]);
+  pe4x2 pe2(o0[1:0],valid0,en,in[7:4]);
+  assign valid= valid1 | valid0;
+  assign out[0]= o0[0] | o1[0];
+  assign out[1]= o0[1] | o1[1];
+  assign out[2]= valid0;
+endmodule
+
+//Test Bench Code
+module test();
+  wire[2:0]out;
+  wire valid;
+  reg en;
+  reg[7:0]in;
+  pe8x3_stru dut(out,valid,in,en);
+  integer i;
+  initial
+    begin
+      for(i=0;i<512;i=i+1)
+        begin
+          {en,in}=i;
+          #10;
+        end
+    end
+  initial
+    begin
+      $monitor("en=%b,in=%b,out=%b,valid=%b",en,in,out,valid);
+    end
+endmodule
+
